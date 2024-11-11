@@ -9,7 +9,7 @@ namespace MagicVilla_VillaApi.Controllers
     //[Route("api/[controller]")]
 
     [Route("api/VillaApi")]
-    [ApiController]
+    [ApiController] //for validation
     public class VillaApiController : ControllerBase
 
     {
@@ -49,6 +49,11 @@ namespace MagicVilla_VillaApi.Controllers
         [ProducesResponseType(404)] //not found 
         [ProducesResponseType(StatusCodes.Status500InternalServerError)] //Bad request
         public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villaDTO) {
+
+            //if (!ModelState.IsValid) { 
+
+            //    return BadRequest(ModelState);
+            //}
 
             if (villaDTO == null) {
 
