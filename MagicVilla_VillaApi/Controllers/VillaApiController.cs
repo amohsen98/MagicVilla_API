@@ -44,5 +44,29 @@ namespace MagicVilla_VillaApi.Controllers
 
         }
 
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)] //not found 
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)] //Bad request
+        public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villaDTO) {
+
+            if (villaDTO == null) {
+
+                return BadRequest(villaDTO);
+            }
+            if(villaDTO.Id > 0)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            villaDTO.Id = VillaStore.VillaList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
+            VillaStore.VillaList.Add(villaDTO);
+            
+            
+            return Ok(villaDTO);
+        
+        
+        }    
+
     }
 }
