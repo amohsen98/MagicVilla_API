@@ -23,6 +23,12 @@ namespace MagicVilla_VillaApi.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] //not found 
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] //Bad request
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(404)] //not found 
+        //[ProducesResponseType(400)] //Bad request
         public ActionResult<VillaDTO> GetVilla(int id)
         {
             if (id == 0) {
