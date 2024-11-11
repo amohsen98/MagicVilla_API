@@ -14,18 +14,27 @@ namespace MagicVilla_VillaApi.Controllers
 
     {
         [HttpGet]
-        public IEnumerable<VillaDTO> GetVillas()
+        public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
+
             //Return Json File key value pair 
-            return VillaStore.VillaList;
+            return Ok(VillaStore.VillaList);
 
         }
 
         [HttpGet("{id:int}")]
-        public VillaDTO GetVilla(int id)
+        public ActionResult<VillaDTO> GetVilla(int id)
         {
+            if (id == 0) {
+                return BadRequest();
+            }
             //linq operation, deal with any kind of database, here is list
-            return VillaStore.VillaList.FirstOrDefault(u => u.Id == id);
+            var villa = VillaStore.VillaList.FirstOrDefault(u => u.Id == id);
+            if (villa == null) {
+
+                return NotFound();
+            }
+            return Ok(villa);
 
         }
 
