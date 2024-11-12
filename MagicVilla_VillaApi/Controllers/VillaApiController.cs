@@ -65,6 +65,7 @@ namespace MagicVilla_VillaApi.Controllers
 
                 return BadRequest(villaDTO);
             }
+            //i want to insert the new record automatically , don't want to specify the id
             if(villaDTO.Id > 0)
             {
 
@@ -95,6 +96,24 @@ namespace MagicVilla_VillaApi.Controllers
             }
             VillaStore.VillaList.Remove(villa); 
             return NoContent(); 
+
+        }
+        [HttpPut("{id:int}", Name ="UpdateVilla")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult UpdateVilla(int id, [FromBody]VillaDTO villaDTO)
+        { 
+        
+            if (villaDTO == null|| id != villaDTO.Id)
+            {
+                return BadRequest();
+            }
+            var Villa = VillaStore.VillaList.FirstOrDefault(v => v.Id == id);
+           Villa.Name = villaDTO.Name;  
+            Villa.Occupancy = villaDTO.Occupancy;
+            Villa.sqft = villaDTO.sqft;
+            return NoContent();
+
 
         }
 
