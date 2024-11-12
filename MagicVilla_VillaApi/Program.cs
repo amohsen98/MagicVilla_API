@@ -17,6 +17,8 @@ namespace MagicVilla_VillaApi
 
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSqlConnection"));
             });
+
+            builder.Services.AddAutoMapper(typeof(MappingConfig));
             //Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
             //    .WriteTo.File("Log/villalogs.txt", rollingInterval : RollingInterval.Day).CreateLogger();   
             //builder.Host.UseSerilog();

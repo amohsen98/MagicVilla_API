@@ -1,4 +1,5 @@
-﻿using MagicVilla_VillaApi.Data;
+﻿using AutoMapper;
+using MagicVilla_VillaApi.Data;
 using MagicVilla_VillaApi.Models;
 using MagicVilla_VillaApi.Models.DTO;
 using Microsoft.AspNetCore.JsonPatch;
@@ -16,16 +17,19 @@ namespace MagicVilla_VillaApi.Controllers
 
     {
         private readonly ApplicationDbContext _context;
-        public VillaApiController(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public VillaApiController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;   
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VillaDTO>>> GetVillas()
         {
             //Return Json File key value pair 
-            return Ok(await _context.Villas.ToListAsync());
+            IEnumerable<Villa> villaList = await _context.Villas.ToListAsync(); 
+            return Ok(_mapper.Map<List<VillaDTO>>(villaList));
 
         }
 
@@ -49,7 +53,7 @@ namespace MagicVilla_VillaApi.Controllers
 
                 return NotFound();
             }
-            return Ok(villa);
+            return Ok(_mapper.Map<VillaDTO>(villa));
 
         }
 
@@ -57,7 +61,7 @@ namespace MagicVilla_VillaApi.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(404)] //not found 
         [ProducesResponseType(StatusCodes.Status500InternalServerError)] //Bad request
-        public async Task<ActionResult<VillaDTO>> CreateVilla([FromBody] VillaCreateDTO villaDTO)
+        public async Task<ActionResult<VillaDTO>> CreateVilla([FromBody] VillaCreateDTO createDTO)
         {
 
             //if (!ModelState.IsValid) { 
@@ -65,36 +69,26 @@ namespace MagicVilla_VillaApi.Controllers
             //    return BadRequest(ModelState);
             //}
             //for customer validation
-            if (await _context.Villas.FirstOrDefaultAsync(u => u.Name.ToLower() == villaDTO.Name.ToLower()) != null)
+            if (await _context.Villas.FirstOrDefaultAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("CustomError", "Villa Already Exists!!");
                 return BadRequest(ModelState);
             }
 
-            if (villaDTO == null)
+            if (createDTO == null)
             {
 
-                return BadRequest(villaDTO);
+                return BadRequest(createDTO);
             }
             //i want to insert the new record automatically , don't want to specify the id
             //if (villaDTO.Id > 0)
             //{
-
+             
             //    return StatusCode(StatusCodes.Status500InternalServerError);
             //}
             //we are doing this because we are passing values from user to villadto obj not villa database
-            Villa model = new()
-            {
-                Name = villaDTO.Name,
-                Details = villaDTO.Details,
-                Rate = villaDTO.Rate,   
-                Occupancy = villaDTO.Occupancy, 
-                Sqft        = villaDTO.sqft,
-                ImageUrl = villaDTO.ImageUrl,   
-                Amenity = villaDTO.Amenity, 
-
-
-            };
+           Villa model = _mapper.Map<Villa>(createDTO);
+           
             await _context.Villas.AddAsync(model);
             await _context.SaveChangesAsync();
 
@@ -128,30 +122,17 @@ namespace MagicVilla_VillaApi.Controllers
         [HttpPut("{id:int}", Name = "UpdateVilla")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> UpdateVilla(int id, [FromBody] VillaUpdateDTO villaDTO)
+        public async Task<IActionResult> UpdateVilla(int id, [FromBody] VillaUpdateDTO updateDTO)
         {
 
-            if (villaDTO == null || id != villaDTO.Id)
+            if (updateDTO == null || id != updateDTO.Id)
             {
                 return BadRequest();
             }
-            //var Villa = _context.Villas.FirstOrDefault(v => v.Id == id);
-            //Villa.Name = villaDTO.Name;
-            //Villa.Occupancy = villaDTO.Occupancy;
-            //Villa.Sqft = villaDTO.sqft;
-            Villa model = new()
-            {
-                Id = villaDTO.Id,
-                Name = villaDTO.Name,
-                Details = villaDTO.Details,
-                Rate = villaDTO.Rate,
-                Occupancy = villaDTO.Occupancy,
-                Sqft = villaDTO.sqft,
-                ImageUrl = villaDTO.ImageUrl,
-                Amenity = villaDTO.Amenity,
+         
 
-
-            };
+           Villa model= _mapper.Map<Villa>(updateDTO);
+            
             _context.Villas.Update(model);
             await _context.SaveChangesAsync();
             return NoContent();
@@ -166,37 +147,16 @@ namespace MagicVilla_VillaApi.Controllers
                 return BadRequest();
             }
             var villa = await _context.Villas.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-            VillaUpdateDTO villaDTO = new()
-            {
-                Id = villa.Id,
-                Name = villa.Name,
-                Details = villa.Details,
-                Rate = villa.Rate,
-                Occupancy = villa.Occupancy,
-                sqft = villa.Sqft,
-                ImageUrl = villa.ImageUrl,
-                Amenity = villa.Amenity,
+            VillaUpdateDTO VillaDTO =_mapper.Map<VillaUpdateDTO>(villa);
 
-
-            };
+            
             if (villa == null)
             {
                 return BadRequest();
             }
-            patchDTO.ApplyTo(villaDTO, ModelState);
-            Villa model = new ()
-            {
-                Id = villaDTO.Id,
-                Name = villaDTO.Name,
-                Details = villaDTO.Details,
-                Rate = villaDTO.Rate,
-                Occupancy = villaDTO.Occupancy,
-                Sqft = villaDTO.sqft,
-                ImageUrl = villaDTO.ImageUrl,
-                Amenity = villaDTO.Amenity,
-
-
-            };
+            patchDTO.ApplyTo(VillaDTO, ModelState);
+            Villa model = _mapper.Map<Villa>(VillaDTO);
+       
             _context.Update(model);
            await _context.SaveChangesAsync();
 
@@ -205,14 +165,7 @@ namespace MagicVilla_VillaApi.Controllers
 
                 return BadRequest(ModelState);
             }
-
-
             return NoContent();
-
-
-
-
-
         }
     }
 }
