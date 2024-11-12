@@ -1,4 +1,5 @@
 
+using MagicVilla_VillaApi.logging;
 using Microsoft.Extensions.Options;
 
 namespace MagicVilla_VillaApi
@@ -11,7 +12,11 @@ namespace MagicVilla_VillaApi
 
             // Add services to the container.
 
-            builder.Services.AddControllers(Option=> { Option.ReturnHttpNotAcceptable = true;  }).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
+            //Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
+            //    .WriteTo.File("Log/villalogs.txt", rollingInterval : RollingInterval.Day).CreateLogger();   
+            //builder.Host.UseSerilog();
+            builder.Services.AddSingleton<ILogging, Logging>();
+            builder.Services.AddControllers(/*Option=> { Option.ReturnHttpNotAcceptable = true;  }*/).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

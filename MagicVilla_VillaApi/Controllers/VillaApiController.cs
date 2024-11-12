@@ -1,4 +1,5 @@
 ﻿using MagicVilla_VillaApi.Data;
+using MagicVilla_VillaApi.logging;
 using MagicVilla_VillaApi.Models;
 using MagicVilla_VillaApi.Models.DTO;
 using Microsoft.AspNetCore.JsonPatch;
@@ -14,10 +15,16 @@ namespace MagicVilla_VillaApi.Controllers
     public class VillaApiController : ControllerBase
 
     {
+        private readonly ILogging _logger;
+        public VillaApiController(ILogging logger)
+        {
+            _logger = logger;
+            
+        }
         [HttpGet]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
-
+            _logger.Log("Get all vilaaas","");
             //Return Json File key value pair 
             return Ok(VillaStore.VillaList);
 
@@ -34,6 +41,7 @@ namespace MagicVilla_VillaApi.Controllers
         {
             if (id == 0)
             {
+                _logger.Log("Get Villa with Id" + id, "error");
                 return BadRequest();
             }
             //linq operation, deal with any kind of database, here is list
